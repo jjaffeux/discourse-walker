@@ -1,11 +1,21 @@
 import { Promise } from "rsvp";
-import { next, schedule } from "@ember/runloop";
+import { later, next, schedule } from "@ember/runloop";
 
 function click(selector) {
   return new Promise(resolve => {
     schedule("afterRender", () => {
       document.querySelector(selector).click();
       next(() => schedule("afterRender", resolve));
+    });
+  });
+}
+function wait(duration) {
+  return new Promise(resolve => {
+    schedule("afterRender", () => {
+      later(
+        () => schedule("afterRender", resolve),
+        parseInt(duration || 50, 10)
+      );
     });
   });
 }
@@ -17,6 +27,15 @@ function fillIn(selector, text) {
       $(input)
         .val(text)
         .change();
+      next(() => schedule("afterRender", resolve));
+    });
+  });
+}
+
+function log(selector) {
+  return new Promise(resolve => {
+    schedule("afterRender", () => {
+      console.log(selector, document.querySelector(selector));
       next(() => schedule("afterRender", resolve));
     });
   });
@@ -39,7 +58,7 @@ function _buildEditor() {
   const playButton = document.createElement("button");
   playButton.innerText = "play";
   playButton.classList.add("play-button");
-  playButton.addEventListener("click", playStatements);
+  playButton.addEventListener("click", () => playStatements);
 
   const displayButton = document.createElement("button");
   displayButton.classList.add("display-button");
