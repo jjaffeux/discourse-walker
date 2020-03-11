@@ -1,5 +1,13 @@
+import DiscourseURL from "discourse/lib/url";
 import { Promise } from "rsvp";
 import { later, next, schedule } from "@ember/runloop";
+
+function visit(url) {
+  return new Promise(resolve => {
+    DiscourseURL.routeTo(url);
+    next(() => schedule("afterRender", resolve));
+  });
+}
 
 function click(selector) {
   return new Promise(resolve => {
@@ -58,7 +66,7 @@ function _buildEditor() {
   const playButton = document.createElement("button");
   playButton.innerText = "play";
   playButton.classList.add("play-button");
-  playButton.addEventListener("click", () => playStatements);
+  playButton.addEventListener("click", playStatements);
 
   const displayButton = document.createElement("button");
   displayButton.classList.add("display-button");
